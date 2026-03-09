@@ -71,7 +71,7 @@ module.exports = {
     
     const blockId = blockData.id
     const pos = bot.entity.position
-    const searchRadius = 16
+    const searchRadius = 8
     let found = null
     let minDist = searchRadius + 1
     
@@ -117,7 +117,7 @@ module.exports = {
       if (!this.state.mining) return
       
       try {
-        // 直接使用坐标偏移获取方块
+        // 使用之前有效的方式
         const dx = found.x - Math.floor(bot.entity.position.x)
         const dy = found.y - Math.floor(bot.entity.position.y)
         const dz = found.z - Math.floor(bot.entity.position.z)

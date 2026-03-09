@@ -7,38 +7,70 @@ module.exports = {
   },
   
   onChat(sender, message, command, args, bot) {
-    // give <玩家> <物品>
+    // give <玩家> [物品] [数量]
     if (command === 'give') {
       if (args.length < 1) {
-        bot.chat('用法: give <玩家> <物品>')
+        bot.chat('用法: give <玩家> [物品] [数量]')
         return true
       }
       
       const targetPlayer = args[0]
-      const giveItem = args.slice(1).join(' ')
+      const lastArg = args[args.length - 1]
+      const count = !isNaN(lastArg) ? parseInt(lastArg) : 1
+      const itemName = args.length > 1 ? args.slice(1, count > 1 ? -1 : undefined).join(' ') : null
       
-      if (!giveItem) {
-        bot.chat('用法: give <玩家> <物品>')
-        return true
-      }
-      
-      // 使用服务器的 give 命令
-      bot.chat(`/give ${targetPlayer} ${giveItem}`)
-      bot.chat(`给 ${targetPlayer} ${giveItem}`)
+      this.giveItem(bot, sender, targetPlayer, itemName, count)
       return true
     }
     
-    // gimme <物品>
+    // gimme [物品] [数量]
     if (command === 'gimme') {
-      if (args.length < 1) {
-        bot.chat('用法: gimme <物品>')
-        return true
-      }
+      const lastArg = args[args.length - 1]
+      const count = !isNaN(lastArg) ? parseInt(lastArg) : 1
+      const itemName = args.length > 1 && count > 1 ? args.slice(0, -1).join(' ') : args.join(' ')
       
-      const giveItem = args.join(' ')
-      bot.chat(`/give ${sender} ${giveItem}`)
-      bot.chat(`给自己 ${giveItem}`)
+      this.giveItem(bot, sender, sender, itemName, count)
       return true
     }
+  },
+  
+  giveItem(bot, sender, targetPlayer, itemName, count = 1) {
+    const items = bot.inventory.items()
+    
+    if (items.length === 0) {
+      bot.chat('背包是空的')
+      return
+    }
+    
+    let targetItem = null
+    
+    if (itemName) {
+      // 精确匹配
+      targetItem = items.find(item => item.name.toLowerCase() === itemName.toLowerCase())
+      
+      // 包含匹配
+      if (!targetItem) {
+        targetItem = items.find(item => item.name.toLowerCase().includes(itemName.toLowerCase()))
+      }
+      
+      if (!targetItem) {
+        bot.chat(`没有找到: ${itemName}`)
+        return
+      }
+    } else {
+      // 随机物品
+      targetItem = items[Math.floor(Math.random() * items.length)]
+    }
+    
+    const giveCount = Math.min(count, targetItem.count)
+    
+    // 使用 toss 丢给玩家
+    bot.toss(targetItem.type, null, giveCount, (err) => {
+      if (err) {
+        bot.chat(`出错: ${err.message}`)
+      } else {
+        bot.chat(`给 ${targetPlayer} ${giveCount}个 ${targetItem.name}`)
+      }
+    })
   }
 }
