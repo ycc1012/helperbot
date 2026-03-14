@@ -1,0 +1,9 @@
+{
+  "name": "tg-mc-bridge",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "mineflayer": "^4.17.0",
+    "node-telegram-bot-api": "^0.64.0"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "smart-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "mineflayer": "^4.35.0",
+    "mineflayer-pathfinder": "*",
+    "mineflayer-statemachine": "*"
+  }
+}
